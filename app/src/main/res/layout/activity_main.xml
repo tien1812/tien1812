@@ -18,18 +18,6 @@
             android:text="Normal" />
 
         <Button
-            android:id="@+id/btn_emboss"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Emboss" />
-
-        <Button
-            android:id="@+id/btn_blur"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="blur" />
-
-        <Button
             android:id="@+id/btn_clear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -57,7 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:max="500"
-        android:min="150"
+        android:min="10"
         android:progress="200" />
 
     <ImageView
@@ -68,6 +56,7 @@
         android:layout_margin="8dp" />
 
     <FrameLayout
+        android:layout_marginBottom="50dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/bg_eraser">
@@ -78,6 +67,4 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center" />
     </FrameLayout>
-
-
 </LinearLayout>

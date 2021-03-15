@@ -13,7 +13,7 @@ import android.widget.SeekBar;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "kaka";
     private PaintView mPaintView;
-    private Button mBtnNormal, mBtnEmboss, mBtnBlur, mBtnClear, mBtnEraser;
+    private Button mBtnNormal, mBtnClear, mBtnEraser;
     private SeekBar mSeekBar, mSbFeature;
     private ImageView mImageView;
 
@@ -23,14 +23,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         mPaintView = (PaintView) findViewById(R.id.paintView);
         mBtnNormal = findViewById(R.id.btn_normal);
-        mBtnEmboss = findViewById(R.id.btn_emboss);
-        mBtnBlur = findViewById(R.id.btn_blur);
         mBtnClear = findViewById(R.id.btn_clear);
         mSeekBar = findViewById(R.id.seek_bar);
         mSbFeature = findViewById(R.id.sb_feature);
         mBtnNormal.setOnClickListener(this);
-        mBtnBlur.setOnClickListener(this::onClick);
-        mBtnEmboss.setOnClickListener(this);
         mBtnClear.setOnClickListener(this);
         mBtnEraser = findViewById(R.id.btn_eraser);
         mImageView = findViewById(R.id.image_view);
@@ -38,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.girl);
         Bitmap bitmap1 = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-        mPaintView.setBitmapResult(bitmap1);
+        mPaintView.setBitmapOriginal(bitmap1);
         mPaintView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -89,12 +85,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_normal:
                 mPaintView.normal();
                 break;
-            case R.id.btn_blur:
-                break;
             case R.id.btn_clear:
                 mPaintView.setRestore(true);
-                break;
-            case R.id.btn_emboss:
                 break;
             case R.id.btn_eraser:
                 mImageView.setImageBitmap(mPaintView.getBitmapResult());

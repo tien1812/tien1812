@@ -20,6 +20,7 @@ import static android.graphics.PorterDuff.Mode.CLEAR;
 import static android.graphics.PorterDuff.Mode.DST_OUT;
 import static android.graphics.PorterDuff.Mode.SRC;
 import static android.graphics.PorterDuff.Mode.SRC_IN;
+import static android.graphics.PorterDuff.Mode.SRC_OVER;
 
 public class PaintView extends View {
     private static final String TAG = "kaka";
@@ -32,7 +33,8 @@ public class PaintView extends View {
     private ArrayList<FingerPath> restorePaths = new ArrayList<>();
     private int currentColor;
     private int strokeWidth;
-    private Bitmap mBitmapResult;
+    private Bitmap mBitmapOriginal;
+    private Bitmap mBitmapFullView;
     private Bitmap mBitmapDraw;
     private Canvas mCanvas;
     private Paint mBitmapPaint = new Paint(Paint.DITHER_FLAG);
@@ -69,9 +71,9 @@ public class PaintView extends View {
 
     public void setSizeBitmap(int wPx, int hPx) {
         int newWidth, newHeight;
-        float ratio = (float) mBitmapResult.getWidth() / mBitmapResult.getHeight();
-        Log.d(TAG, "init: " + mBitmapResult.getWidth());
-        Log.d(TAG, "init: " + mBitmapResult.getHeight());
+        float ratio = (float) mBitmapOriginal.getWidth() / mBitmapOriginal.getHeight();
+        Log.d(TAG, "init: " + mBitmapOriginal.getWidth());
+        Log.d(TAG, "init: " + mBitmapOriginal.getHeight());
         Log.d(TAG, "init: " + ratio);
         if (ratio >= 1) {
             newWidth = wPx;
@@ -83,14 +85,16 @@ public class PaintView extends View {
         Log.d(TAG, "init: " + newWidth);
         Log.d(TAG, "init: " + newHeight);
         mBitmapDraw = Bitmap.createBitmap(newWidth, newHeight, Bitmap.Config.ARGB_8888);
-        mBitmapResult = Bitmap.createScaledBitmap(mBitmapResult, newWidth, newHeight,
+        mBitmapOriginal = Bitmap.createScaledBitmap(mBitmapOriginal, newWidth, newHeight,
                 true);
         mCanvas.setBitmap(mBitmapDraw);
+        mBitmapFullView = Bitmap.createBitmap(newWidth + newWidth / 6, newHeight +
+                newHeight / 6, Bitmap.Config.ARGB_8888);
         invalidate();
     }
 
-    public void setBitmapResult(Bitmap bitmapResult) {
-        mBitmapResult = bitmapResult;
+    public void setBitmapOriginal(Bitmap bitmapOriginal) {
+        mBitmapOriginal = bitmapOriginal;
         mCanvas = new Canvas();
     }
 
@@ -126,26 +130,40 @@ public class PaintView extends View {
                 mCanvas.drawPath(fp.path, mPaint);
             }
         }
-        canvas.drawBitmap(mBitmapResult, 0, 0, null);
+        canvas.drawBitmap(mBitmapOriginal, 0, 0, null);
         canvas.drawBitmap(mBitmapDraw, 0, 0, mBitmapPaint);
         canvas.drawCircle(mX, mY, strokeWidth / 2, mPaintCursor);
         canvas.drawCircle(mX, mY + mDistanceCursor, 20, mPaintCursor);
-        if (isMove) {
-            if (mX > mBitmapResult.getWidth() - mBitmapResult.getWidth() / 6
-                    || mY > mBitmapResult.getHeight() - mBitmapResult.getWidth() / 6) {
-                return;
-            }
-            mBmZoom = Bitmap.createBitmap(mBitmapResult,
-                    (int) Math.abs(mX - mBitmapResult.getWidth() / 6),
-                    (int) Math.abs(mY - mBitmapResult.getWidth() / 6),
-                    mBitmapResult.getWidth() / 3, mBitmapResult.getWidth() / 3);
-            canvas.drawBitmap(drawCircleZoomBitmap(mBmZoom), 20, 20, null);
-        }
+
+        drawZoomCircle(canvas);
         canvas.restore();
     }
 
+    private void drawZoomCircle(Canvas canvas) {
+        Canvas canvas1 = new Canvas(mBitmapFullView);
+        canvas1.drawBitmap(mBitmapOriginal, 0, 0, null);
+        canvas1.drawBitmap(mBitmapDraw, 0, 0, null);
+        if (isMove) {
+            if (mX > mBitmapOriginal.getWidth()
+                    || mY > mBitmapOriginal.getHeight()) {
+                return;
+            }
+            mBmZoom = Bitmap.createBitmap(mBitmapFullView,
+                    (int) Math.abs(mX - mBitmapOriginal.getWidth() / 6),
+                    (int) Math.abs(mY - mBitmapOriginal.getWidth() / 6),
+                    mBitmapOriginal.getWidth() / 3, mBitmapOriginal.getWidth() / 3);
+
+            int left;
+            if (mX < mBitmapOriginal.getWidth() / 2) {
+                left = mBitmapOriginal.getWidth() - 20 - mBmZoom.getWidth();
+            } else left = 20;
+            canvas.drawBitmap(drawCircleZoomBitmap(mBmZoom), left, 20, null);
+        }
+    }
+
     private Bitmap drawCircleZoomBitmap(Bitmap bitmap) {
-        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(output);
         Paint paint = new Paint();
         Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
@@ -153,6 +171,7 @@ public class PaintView extends View {
         canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2, bitmap.getWidth() / 2, paint);
         paint.setXfermode(new PorterDuffXfermode(SRC_IN));
         canvas.drawBitmap(bitmap, rect, rect, paint);
+        paint.setXfermode(new PorterDuffXfermode(SRC_OVER));
         return output;
     }
 
@@ -194,12 +213,12 @@ public class PaintView extends View {
     }
 
     public Bitmap getBitmapResult() {
-        Canvas canvas = new Canvas(mBitmapResult);
+        Canvas canvas = new Canvas(mBitmapOriginal);
         int[] allpixels = new int[mBitmapDraw.getHeight() * mBitmapDraw.getWidth()];
         mBitmapDraw.getPixels(allpixels, 0, mBitmapDraw.getWidth(), 0, 0, mBitmapDraw.getWidth(), mBitmapDraw.getHeight());
         for (int i = 0; i < allpixels.length; i++) {
             if (allpixels[i] != Color.TRANSPARENT) {
-                allpixels[i] = Color.GRAY;
+                allpixels[i] = Color.WHITE;
             }
         }
         mBitmapDraw.setPixels(allpixels, 0, mBitmapDraw.getWidth(), 0, 0,
@@ -209,7 +228,7 @@ public class PaintView extends View {
         paint.setDither(true);
         paint.setXfermode(new PorterDuffXfermode(DST_OUT));
         canvas.drawBitmap(mBitmapDraw, 0, 0, paint);
-        return mBitmapResult;
+        return mBitmapOriginal;
     }
 
     @Override
@@ -219,11 +238,11 @@ public class PaintView extends View {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                isMove = true;
                 touchStart(x, y - mDistanceCursor);
                 invalidate();
                 break;
             case MotionEvent.ACTION_MOVE:
-                isMove = true;
                 touchMove(x, y - mDistanceCursor);
                 invalidate();
                 break;
