@@ -89,7 +89,7 @@ public class PaintView extends View {
         strokeWidth = BRUSH_SIZE;
 
         mPaintCursor = new Paint();
-        mPaintCursor.setColor(getResources().getColor(R.color.purple_700));
+        mPaintCursor.setColor(getContext().getColor(R.color.purple_700));
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
     }
@@ -155,7 +155,7 @@ public class PaintView extends View {
             if (!isRestore) {
                 for (FingerPath fp : removePaths) {
                     mPaint.setXfermode(new PorterDuffXfermode(SRC));
-                    mPaint.setColor(getResources().getColor(R.color.red_alpha, getContext().getTheme()));
+                    mPaint.setColor(getContext().getColor(R.color.red_alpha));
                     mPaint.setStrokeWidth(fp.strokeWidth);
                     mPaint.setMaskFilter(null);
                     mCanvas.drawPath(fp.path, mPaint);
@@ -333,7 +333,6 @@ public class PaintView extends View {
         mBitmapDraw.setPixels(allpixels, 0, mBitmapDraw.getWidth(), 0, 0,
                 mBitmapDraw.getWidth(), mBitmapDraw.getHeight());
         //
-
 
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setAntiAlias(true);
