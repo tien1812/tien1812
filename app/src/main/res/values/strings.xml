@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">EraserPhoto</string>
+
+    <string name="time_to_run_the_model">Time to run the model </string>
+    <string name="time_to_flatten_the_mask_result">Time to flatten the mask result </string>
+    <string name="total_time_execution">Total time execution </string>
+    <string name="something_went_wrong">something went wrong:</string>
+    <string name="input_image_size">Input Image Size: </string>
+    <string name="gpu_enable">"GPU enabled: </string>
+    <string name="number_of_threads">Number of threads: </string>
+    <string name="pre_process_execution_time">Pre-process execution time: </string>
+    <string name="model_execution_time">Model execution time: </string>
+    <string name="mask_flatten_time">Mask flatten time: </string>
+    <string name="full_execution_time">Full execution time: </string>
 </resources>
