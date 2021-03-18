@@ -125,7 +125,7 @@ public class ImageSegmentationModelExecutor {
             Set<Integer> itensFound = null;
             Triple a = new Triple(maskImageApplied, maskOnly, itensFound);
             a =
-                    convertBytebufferMaskToBitmap(
+                    convertByteBufferMaskToBitmap(
                             segmentationMasks, imageSize, imageSize, scaledBitmap,
                             segmentColors
                     );
@@ -172,7 +172,7 @@ public class ImageSegmentationModelExecutor {
         return sb.toString();
     }
 
-    private Triple convertBytebufferMaskToBitmap(
+    private Triple convertByteBufferMaskToBitmap(
             ByteBuffer inputBuffer,
             int imageWidth,
             int imageHeight,

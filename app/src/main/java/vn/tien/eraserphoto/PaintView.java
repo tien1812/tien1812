@@ -320,6 +320,9 @@ public class PaintView extends View {
 
     public Bitmap getBitmapResult() {
         Canvas canvas = new Canvas(mBitmapOriginal);
+
+        // vì bitmap draw là màu red alpha lên phải set cho các pixel màu k phải là alpha thì mới xoá đc .
+        //nếu màu k phải alpha thì k cần phải viết đoạn này
         int[] allpixels = new int[mBitmapDraw.getHeight() * mBitmapDraw.getWidth()];
         mBitmapDraw.getPixels(allpixels, 0, mBitmapDraw.getWidth(), 0, 0, mBitmapDraw.getWidth(), mBitmapDraw.getHeight());
         for (int i = 0; i < allpixels.length; i++) {
@@ -329,6 +332,9 @@ public class PaintView extends View {
         }
         mBitmapDraw.setPixels(allpixels, 0, mBitmapDraw.getWidth(), 0, 0,
                 mBitmapDraw.getWidth(), mBitmapDraw.getHeight());
+        //
+
+
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setAntiAlias(true);
         paint.setDither(true);

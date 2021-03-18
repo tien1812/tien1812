@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuffXfermode;
@@ -221,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Canvas canvas = new Canvas();
         Bitmap colorbitmap = Bitmap.createBitmap(mPaintView.getBitmapOriginal().getWidth(),
                 mPaintView.getBitmapOriginal().getHeight(), Bitmap.Config.ARGB_8888);
-        colorbitmap.eraseColor(Color.argb(60, 255, 0, 0));
+        colorbitmap.eraseColor(getColor(R.color.red_alpha));
         colorbitmap.setHasAlpha(true);
         canvas.setBitmap(colorbitmap);
         Paint paint = new Paint();
