@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ModelExecutionResult mModelExecutionResult;
     private ImageSegmentationModelExecutor imageSegmentationModel;
     private Boolean useGPU = false;
+    private Button mBtnUndo, mBtnRedo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +58,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBtnAuto.setOnClickListener(this);
         mBtnGallery = findViewById(R.id.gallery);
         mBtnGallery.setOnClickListener(this);
+        mBtnUndo = findViewById(R.id.btn_undo);
+        mBtnRedo = findViewById(R.id.btn_redo);
+        mBtnUndo.setOnClickListener(this);
 
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.girl);
         Bitmap bitmap1 = bitmap.copy(Bitmap.Config.ARGB_8888, true);
@@ -125,6 +129,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.gallery:
                 chooseImage();
+                break;
+            case R.id.btn_undo:
+                mPaintView.undo();
                 break;
         }
     }

@@ -11,7 +11,8 @@ public class ModelExecutionResult {
     public String executionLog;
     public Set<Integer> itemsFound;
 
-    public ModelExecutionResult(Bitmap bitmapResult, Bitmap bitmapOriginal, Bitmap bitmapMaskOnly, String executionLog, Set<Integer> itemsFound) {
+    public ModelExecutionResult(Bitmap bitmapResult, Bitmap bitmapOriginal, Bitmap bitmapMaskOnly,
+                                String executionLog, Set<Integer> itemsFound) {
         this.bitmapResult = bitmapResult;
         this.bitmapOriginal = bitmapOriginal;
         this.bitmapMaskOnly = bitmapMaskOnly;

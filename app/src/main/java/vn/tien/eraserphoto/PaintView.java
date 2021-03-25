@@ -154,18 +154,22 @@ public class PaintView extends View {
         } else {
             if (!isRestore) {
                 for (FingerPath fp : removePaths) {
-                    mPaint.setXfermode(new PorterDuffXfermode(SRC));
-                    mPaint.setColor(getContext().getColor(R.color.red_alpha));
-                    mPaint.setStrokeWidth(fp.strokeWidth);
-                    mPaint.setMaskFilter(null);
-                    mCanvas.drawPath(fp.path, mPaint);
+                    if (fp == removePaths.get(removePaths.size() - 1)) {
+                        mPaint.setXfermode(new PorterDuffXfermode(SRC));
+                        mPaint.setColor(getContext().getColor(R.color.red_alpha));
+                        mPaint.setStrokeWidth(fp.strokeWidth);
+                        mPaint.setMaskFilter(null);
+                        mCanvas.drawPath(fp.path, mPaint);
+                    }
                 }
             } else {
                 for (FingerPath fp : restorePaths) {
-                    mPaint.setXfermode(new PorterDuffXfermode(CLEAR));
-                    mPaint.setStrokeWidth(fp.strokeWidth);
-                    mPaint.setMaskFilter(null);
-                    mCanvas.drawPath(fp.path, mPaint);
+                    if (fp == restorePaths.get(restorePaths.size() - 1)) {
+                        mPaint.setXfermode(new PorterDuffXfermode(CLEAR));
+                        mPaint.setStrokeWidth(fp.strokeWidth);
+                        mPaint.setMaskFilter(null);
+                        mCanvas.drawPath(fp.path, mPaint);
+                    }
                 }
             }
             float x = mX * getMatrixScale(moveMatrix) +
@@ -254,6 +258,12 @@ public class PaintView extends View {
         }
     }
 
+    public void undo() {
+        isRestore = true;
+        restorePaths.add(removePaths.get(removePaths.size() - 1));
+        invalidate();
+    }
+
     private void touchStart(float x, float y, MotionEvent event) {
         mPath = new Path();
         if (!isRestore) {
@@ -313,8 +323,6 @@ public class PaintView extends View {
 
     private void touchUp() {
         mPath.lineTo(mX, mY);
-        removePaths.clear();
-        restorePaths.clear();
         this.currentMode = 0;
     }
 

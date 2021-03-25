@@ -50,12 +50,12 @@ public class ImageSegmentationModelExecutor {
             "person", "potted plant", "sheep", "sofa", "train", "tv"
     };
 
-    private static final int getrandom(Random random) {
+    private static final int getRandom(Random random) {
         return (int) (255 * random.nextFloat());
     }
 
     Context context;
-    private boolean useGPU = false;
+    private boolean useGPU;
     private GpuDelegate gpuDelegate = null;
 
     private ByteBuffer segmentationMasks;
@@ -81,13 +81,13 @@ public class ImageSegmentationModelExecutor {
         for (int i = 1; i < NUM_CLASSES; i++) {
             segmentColors[i] = Color.argb(
                     (128),
-                    getrandom(
+                    getRandom(
                             rd
                     ),
-                    getrandom(
+                    getRandom(
                             rd
                     ),
-                    getrandom(
+                    getRandom(
                             rd
                     )
             );
@@ -122,8 +122,8 @@ public class ImageSegmentationModelExecutor {
             maskFlatteningTime = SystemClock.uptimeMillis();
             Bitmap maskImageApplied = null;
             Bitmap maskOnly = null;
-            Set<Integer> itensFound = null;
-            Triple a = new Triple(maskImageApplied, maskOnly, itensFound);
+            Set<Integer> itemsFound = null;
+            Triple a = new Triple(maskImageApplied, maskOnly, itemsFound);
             a =
                     convertByteBufferMaskToBitmap(
                             segmentationMasks, imageSize, imageSize, scaledBitmap,
@@ -206,17 +206,16 @@ public class ImageSegmentationModelExecutor {
                 }
 
                 itemsFound.add(mSegmentBits[x][y]);
-                if (mSegmentBits[x][y] == 15) {
-                    int newPixelColor = ColorUtils.compositeColors(
-                            colors[mSegmentBits[x][y]],
-                            scaledBackgroundImage.getPixel(x, y)
-                    );
-                    resultBitmap.setPixel(x, y, scaledBackgroundImage.getPixel(x, y));
-                    maskBitmap.setPixel(x, y, colors[mSegmentBits[x][y]]);
-                }
+                int newPixelColor = ColorUtils.compositeColors(
+                        colors[mSegmentBits[x][y]],
+                        scaledBackgroundImage.getPixel(x, y));
+                resultBitmap.setPixel(x, y, newPixelColor);
+                maskBitmap.setPixel(x, y, colors[mSegmentBits[x][y]]);
             }
+
         }
         return new Triple(resultBitmap, maskBitmap, itemsFound);
+
     }
 
     void close() {
