@@ -6,18 +6,28 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.huawei.hmf.tasks.Task;
+import com.huawei.hms.mlsdk.MLAnalyzerFactory;
+import com.huawei.hms.mlsdk.common.MLFrame;
+import com.huawei.hms.mlsdk.imgseg.MLImageSegmentation;
+import com.huawei.hms.mlsdk.imgseg.MLImageSegmentationAnalyzer;
+import com.huawei.hms.mlsdk.imgseg.MLImageSegmentationSetting;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -26,14 +36,16 @@ import java.io.InputStream;
 import vn.tien.eraserphoto.removewithtensorflow.ImageSegmentationModelExecutor;
 import vn.tien.eraserphoto.removewithtensorflow.ModelExecutionResult;
 
-import static android.graphics.PorterDuff.Mode.DST_OUT;
-
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "kaka";
     private PaintView mPaintView;
     private Button mBtnNormal, mBtnClear, mBtnEraser, mBtnAuto, mBtnGallery;
     private SeekBar mSeekBar, mSbFeature;
     private ImageView mImageView;
+
+    private MLImageSegmentationAnalyzer analyzer;
+    private Bitmap foreground;
+    private Bitmap processedImage;
 
     private ModelExecutionResult mModelExecutionResult;
     private ImageSegmentationModelExecutor imageSegmentationModel;
@@ -219,22 +231,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void autoEraser() {
-        mModelExecutionResult = imageSegmentationModel.execute(mPaintView.getBitmapOriginal());
+        createImageTransactor(mPaintView.getBitmapOriginal());
+    }
 
-        Bitmap bmsrauto = Bitmap.createScaledBitmap(mModelExecutionResult.bitmapResult,
-                mPaintView.getBitmapOriginal().getWidth(),
-                mPaintView.getBitmapOriginal().getHeight(), true);
-        Canvas canvas = new Canvas();
-        Bitmap colorbitmap = Bitmap.createBitmap(mPaintView.getBitmapOriginal().getWidth(),
-                mPaintView.getBitmapOriginal().getHeight(), Bitmap.Config.ARGB_8888);
-        colorbitmap.eraseColor(getColor(R.color.red_alpha));
-        colorbitmap.setHasAlpha(true);
-        canvas.setBitmap(colorbitmap);
-        Paint paint = new Paint();
-        paint.setXfermode(new PorterDuffXfermode(DST_OUT));
-        paint.setFilterBitmap(true);
-        paint.setAntiAlias(true);
-        canvas.drawBitmap(bmsrauto, 0, 0, paint);
-        mPaintView.setBitmapDraw(colorbitmap);
+    private void createImageTransactor(Bitmap bitmap) {
+        MLImageSegmentationSetting setting = new MLImageSegmentationSetting.Factory().setExact(true)
+                .setAnalyzerType(MLImageSegmentationSetting.BODY_SEG).create();
+        this.analyzer = MLAnalyzerFactory.getInstance().getImageSegmentationAnalyzer(setting);
+        MLFrame mlFrame = new MLFrame.Creator().setBitmap(bitmap).create();
+        Task<MLImageSegmentation> task = this.analyzer.asyncAnalyseFrame(mlFrame);
+        task.addOnSuccessListener(mlImageSegmentationResults -> {
+            // Transacting logic for segment success.
+            if (mlImageSegmentationResults != null) {
+                foreground = mlImageSegmentationResults.getForeground();
+
+                Bitmap bmsrauto = Bitmap.createScaledBitmap(foreground,
+                        mPaintView.getBitmapOriginal().getWidth(),
+                        mPaintView.getBitmapOriginal().getHeight(), true);
+                Canvas canvas = new Canvas();
+                Bitmap colorbitmap = Bitmap.createBitmap(mPaintView.getBitmapOriginal().getWidth(),
+                        mPaintView.getBitmapOriginal().getHeight(), Bitmap.Config.ARGB_8888);
+                colorbitmap.eraseColor(getColor(R.color.red_alpha));
+                colorbitmap.setHasAlpha(true);
+                canvas.setBitmap(colorbitmap);
+                Paint paint = new Paint();
+                paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OUT));
+                paint.setFilterBitmap(true);
+                paint.setAntiAlias(true);
+                canvas.drawBitmap(bmsrauto, 0, 0, paint);
+                mPaintView.setBitmapDraw(colorbitmap);
+            } else {
+                Toast.makeText(MainActivity.this, "failed", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(e -> {
+            // Transacting logic for segment failure.
+            return;
+        });
+
     }
 }

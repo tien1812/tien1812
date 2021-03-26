@@ -5,8 +5,9 @@ import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.SystemClock;
-import android.support.v4.graphics.ColorUtils;
 import android.util.Log;
+
+import androidx.core.graphics.ColorUtils;
 
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.gpu.GpuDelegate;
