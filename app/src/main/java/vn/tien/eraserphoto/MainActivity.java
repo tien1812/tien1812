@@ -33,9 +33,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import vn.tien.eraserphoto.removewithtensorflow.ImageSegmentationModelExecutor;
-import vn.tien.eraserphoto.removewithtensorflow.ModelExecutionResult;
-
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "kaka";
     private PaintView mPaintView;
@@ -45,11 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private MLImageSegmentationAnalyzer analyzer;
     private Bitmap foreground;
-    private Bitmap processedImage;
 
-    private ModelExecutionResult mModelExecutionResult;
-    private ImageSegmentationModelExecutor imageSegmentationModel;
-    private Boolean useGPU = false;
     private Button mBtnUndo, mBtnRedo;
 
     @Override
@@ -84,9 +77,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mPaintView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
-
-
-        imageSegmentationModel = new ImageSegmentationModelExecutor(this, useGPU);
 
 
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -249,17 +239,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         mPaintView.getBitmapOriginal().getWidth(),
                         mPaintView.getBitmapOriginal().getHeight(), true);
                 Canvas canvas = new Canvas();
-                Bitmap colorbitmap = Bitmap.createBitmap(mPaintView.getBitmapOriginal().getWidth(),
+                Bitmap colorBitmap = Bitmap.createBitmap(mPaintView.getBitmapOriginal().getWidth(),
                         mPaintView.getBitmapOriginal().getHeight(), Bitmap.Config.ARGB_8888);
-                colorbitmap.eraseColor(getColor(R.color.red_alpha));
-                colorbitmap.setHasAlpha(true);
-                canvas.setBitmap(colorbitmap);
+                colorBitmap.eraseColor(getColor(R.color.red_alpha));
+                colorBitmap.setHasAlpha(true);
+                canvas.setBitmap(colorBitmap);
                 Paint paint = new Paint();
                 paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OUT));
                 paint.setFilterBitmap(true);
                 paint.setAntiAlias(true);
                 canvas.drawBitmap(bmsrauto, 0, 0, paint);
-                mPaintView.setBitmapDraw(colorbitmap);
+                mPaintView.setBitmapDraw(colorBitmap);
             } else {
                 Toast.makeText(MainActivity.this, "failed", Toast.LENGTH_SHORT).show();
             }

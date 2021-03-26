@@ -328,6 +328,9 @@ public class PaintView extends View {
     }
 
     public Bitmap getBitmapResult() {
+        if(!mBitmapOriginal.isMutable()){
+            mBitmapOriginal = mBitmapOriginal.copy(Bitmap.Config.ARGB_8888,true);
+        }
         Canvas canvas = new Canvas(mBitmapOriginal);
 
         // vì bitmap draw là màu red alpha lên phải set cho các pixel màu k phải là alpha thì mới xoá đc .
